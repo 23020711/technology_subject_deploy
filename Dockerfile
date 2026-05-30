@@ -3,13 +3,11 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# Copy pom.xml first for dependency caching
-COPY backend/pom.xml backend/
-WORKDIR /app/backend
-RUN mvn dependency:go-offline -B
-
-# Copy source and build
+# Copy backend pom.xml and source
+COPY backend/pom.xml ./pom.xml
 COPY backend/src ./src
+
+# Build the application
 RUN mvn clean package -DskipTests -B
 
 # Runtime stage
@@ -22,7 +20,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 # Copy the built jar
-COPY --from=builder /app/backend/target/*.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 # Expose port
 EXPOSE 8080

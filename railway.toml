@@ -1,8 +1,8 @@
 [railway]
-  ignoreFiles = ["frontend/**", "data-processor/**", "crawl-data/**", "*.md", "*.json", "*.toml"]
+  ignoreFiles = ["frontend/**", "data-processor/**", "crawl-data/**", "*.md", "*.json", "*.toml", "backend/**"]
 
 [build]
-  dockerfilePath = "backend/Dockerfile"
+  dockerfilePath = "Dockerfile"
 
 [deploy]
   restartPolicyType = "ON_FAILURE"
