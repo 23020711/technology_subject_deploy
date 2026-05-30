@@ -127,7 +127,7 @@ def load_pool():
     for src_key, meta in SOURCE_FILES.items():
         fpath = meta["file"]
         if not os.path.exists(fpath):
-            print(f"⚠️  Không tìm thấy: {fpath}")
+            print(f"  [WARN] Khong tim thay: {fpath}")
             continue
 
         data = json.load(open(fpath, encoding="utf-8"))
@@ -195,10 +195,10 @@ def load_pool():
                 # Extra info
                 "rating":          p.get("rating"),
                 "review_count":    p.get("review_count"),
-                "quantity_sold":   quantity_sold,
+                "quantity_sold":   p.get("quantity_sold"),
             })
 
-        print(f"  ✅ {meta['label']:10s}: {len(entries):4d} sản phẩm")
+        print(f"  [OK] {meta['label']:10s}: {len(entries):4d} san pham")
 
     return pool
 
@@ -211,17 +211,17 @@ def compute_or_load_embeddings(pool, model):
     if os.path.exists(CACHE_EMB) and os.path.exists(CACHE_META):
         meta = json.load(open(CACHE_META))
         if meta.get("key") == cache_key and meta.get("model") == MODEL_NAME:
-            print(f"  💾 Dùng embedding cache ({CACHE_EMB})")
+            print(f"  [CACHE] Using embedding cache ({CACHE_EMB})")
             return np.load(CACHE_EMB)
 
-    print(f"  🔄 Tính embeddings cho {len(texts)} sản phẩm…")
+    print(f"  [COMPUTE] Computing embeddings for {len(texts)} san pham...")
     t0   = time.time()
     embs = model.encode(texts, normalize_embeddings=True, batch_size=64, show_progress_bar=True)
-    print(f"  ⏱  Xong trong {time.time()-t0:.1f}s")
+    print(f"  Time: {time.time()-t0:.1f}s")
 
     np.save(CACHE_EMB, embs)
     json.dump({"key": cache_key, "model": MODEL_NAME, "n": len(texts)}, open(CACHE_META, "w"))
-    print(f"  💾 Đã lưu cache → {CACHE_EMB}")
+    print(f"  [SAVE] Saved cache -> {CACHE_EMB}")
     return embs
 
 # ─── HARD FILTER ───────────────────────────────────────────────
@@ -362,18 +362,18 @@ def build_output(pool, cluster_map):
 # ─── MAIN ──────────────────────────────────────────────────────
 
 def main():
-    print("🦅 PriceHawk v5 — DB-Ready Output")
+    print("PriceHawk v5 - DB-Ready Output")
     print("=" * 55)
 
-    print("\n📦 Loading products…")
+    print("\n[LOAD] Loading products...")
     pool = load_pool()
-    print(f"   Total: {len(pool)} sản phẩm\n")
+    print(f"   Total: {len(pool)} san pham\n")
 
-    print(f"🤖 Loading model: {MODEL_NAME}")
+    print(f"Loading model: {MODEL_NAME}")
     from sentence_transformers import SentenceTransformer
     model = SentenceTransformer(MODEL_NAME)
 
-    print("\n⚡ Computing embeddings…")
+    print("\n[COMPUTE] Computing embeddings...")
     embs = compute_or_load_embeddings(pool, model)
     print()
 
@@ -383,7 +383,7 @@ def main():
         brand_groups.setdefault(p["brand_slug"], []).append(i)
 
     # Match
-    print("🔗 Matching…")
+    print("Linking...")
     uf = UnionFind(len(pool))
     total_checked = confirmed = 0
 
@@ -417,8 +417,8 @@ def main():
                     uf.union(i, j)
                     confirmed += 1
 
-    print(f"   Checked:   {total_checked:,} cặp")
-    print(f"   Confirmed: {confirmed:,} cặp match\n")
+    print(f"   Checked:   {total_checked:,} cap")
+    print(f"   Confirmed: {confirmed:,} cap match\n")
 
     # Build clusters
     cluster_map = {}
@@ -449,12 +449,12 @@ def main():
     json.dump(output, open(OUTPUT_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
     print("=" * 55)
-    print(f"📊 Kết quả:")
-    print(f"   Matched (2+ nguồn):  {len(multi)}")
-    print(f"   Unmatched (1 nguồn): {len(single)}")
-    print(f"   Tổng clusters:       {len(masters)}")
-    print(f"\n💾 Output: {OUTPUT_FILE}")
-    print("✅ Done.")
+    print("Ket qua:")
+    print(f"   Matched (2+ nguon):  {len(multi)}")
+    print(f"   Unmatched (1 nguon): {len(single)}")
+    print(f"   Tong clusters:       {len(masters)}")
+    print(f"\nOutput: {OUTPUT_FILE}")
+    print("Done.")
 
 
 if __name__ == "__main__":

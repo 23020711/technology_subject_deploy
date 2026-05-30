@@ -72,7 +72,9 @@ public class SecurityConfig {
                                 "/api/v1/price-history/**",
                                 "/api/compare/**",
                                 "/api/go/**",
-                                "/api/recommendations/**"
+                                "/api/recommendations/**",
+                                "/api/wishlist/**",
+                                "/v1/price-history/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/ai-chat/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai-chat/**").permitAll()
