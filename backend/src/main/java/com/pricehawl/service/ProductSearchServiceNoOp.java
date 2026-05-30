@@ -72,8 +72,9 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
                 .min(Integer::compareTo)
                 .orElse(null);
             if (bestPrice != null) {
+                final Integer priceToMatch = bestPrice;
                 Platform platform = p.getListings().stream()
-                    .filter(l -> bestPrice.equals(l.getCurrentPrice()))
+                    .filter(l -> priceToMatch.equals(l.getCurrentPrice()))
                     .map(l -> l.getPlatform())
                     .findFirst()
                     .orElse(null);
