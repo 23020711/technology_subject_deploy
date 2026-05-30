@@ -8,7 +8,7 @@ if (!supabaseUrl || !supabaseKey) {
 }
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const BACKEND_URL = 'http://localhost:8080'
+export const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 export interface UserProfile {
     id: string
