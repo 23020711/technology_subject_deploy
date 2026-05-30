@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Build outputs
+target/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Debug
+debug/
+
+# Test coverage
+coverage/
+
+# Gradle (if any)
+.gradle/
+
+# Maven wrapper (don't include in Docker)
+!backend/bin/

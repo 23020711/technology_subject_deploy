@@ -1,0 +1,16 @@
+[railway]
+  variable = ["RAILWAY_GIT_COMMIT_SHA={{.gitCommitHash}}"]
+
+# Backend service - Java Spring Boot
+[railway.service.backend]
+  dockerfile = "./backend/Dockerfile"
+  primaryRegion = "ap-southeast"
+  healthcheckPath = "/actuator/health"
+  healthcheckPort = 8080
+  internalPort = 8080
+
+# Frontend service - React/Vite + Nginx
+[railway.service.frontend]
+  dockerfile = "./frontend/Dockerfile"
+  primaryRegion = "ap-southeast"
+  internalPort = 80

@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?sslmode=require
-    username: "postgres.astkanfsacxriwprspqr"
-    password: "PriceHawl123@"
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
     hikari:
@@ -22,11 +22,12 @@ spring:
         default_schema: public
 
   elasticsearch:
-    uris: http://localhost:9200
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 
   flyway:
     enabled: true
@@ -34,7 +35,28 @@ spring:
     baseline-on-migrate: true
 
 server:
-  port: 8080
+  port: ${PORT:8080}
+  address: ${SERVER_HOST:0.0.0.0}
+
+# CORS Configuration
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,chrome-extension://*}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  health:
+    redis:
+      enabled: ${REDIS_ENABLED:false}
+    elasticsearch:
+      enabled: ${ELASTICSEARCH_ENABLED:false}
 
 springdoc:
   api-docs:
@@ -49,19 +71,16 @@ springdoc:
   show-actuator: false
 
 supabase:
-  url: "${SUPABASE_URL:https://astkanfsacxriwprspqr.supabase.co}"
+  url: ${SUPABASE_URL:}
   api:
-    key: "${SUPABASE_API_KEY:sb_publishable_eT1klaZ7funqt0MuifuEWA_ea7Zixc9}"
+    key: ${SUPABASE_API_KEY:}
 
 logging:
   level:
     root: WARN
     org.springframework.security: WARN
-    # com.pricehawl.service.PriceRefreshScheduler: INFO
     com.pricehawl.service.MultiPlatformPriceRefreshService: INFO
-    # com.pricehawl.service.crawler.CrawlerRateLimiter: DEBUG
     com.pricehawl.service.crawler: DEBUG
-    # com.pricehawl.service.AlertQueueConsumer: DEBUG
 
 pricehawk:
   debug:
@@ -69,7 +88,7 @@ pricehawk:
 
   scheduler:
     price-refresh:
-      enabled: false
+      enabled: ${SCHEDULER_ENABLED:false}
       cron: "0 */15 * * * *"
       zone: "Asia/Bangkok"
       max-items-per-run: 50
@@ -80,18 +99,13 @@ pricehawk:
     thread-pool-size: 5
 
 resend:
-  api-key: re_UHgo6tTR_98Uk3AAy2Af7eYRzTSi7BoxE
+  api-key: ${RESEND_API_KEY:}
 
 ai:
-  base-url: https://generativelanguage.googleapis.com
-  api-key: AIzaSyDPtoRBuHYLFfDmLSj9PvvcWuFXzlSnqZA
-  model: gemini-2.5-flash
+  base-url: ${AI_BASE_URL:https://generativelanguage.googleapis.com}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:gemini-2.5-flash}
   enable-search: true
 
 accesstrade:
-  api-key: Ufa06E7uTCRm4kr89slTopHetE6uiZ04
-
-ai:
-  base-url: ${AI_BASE_URL:https://api.openai.com/v1}
-  api-key: ${AI_API_KEY:}
-  model: ${AI_MODEL:gpt-3.5-turbo}
+  api-key: ${ACCESSTRADE_API_KEY:}

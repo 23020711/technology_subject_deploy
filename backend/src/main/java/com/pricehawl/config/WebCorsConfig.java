@@ -1,5 +1,6 @@
 package com.pricehawl.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -11,16 +12,20 @@ import java.util.List;
 @Configuration
 public class WebCorsConfig {
 
+    @Value("${cors.allowed-origins:http://localhost:*,http://127.0.0.1:*,chrome-extension://*}")
+    private String allowedOrigins;
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "https://localhost:*",
-                "chrome-extension://*"
-        ));
+        
+        // Parse comma-separated origins
+        String[] origins = allowedOrigins.split(",");
+        for (String origin : origins) {
+            config.addAllowedOriginPattern(origin.trim());
+        }
+        
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of(
