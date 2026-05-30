@@ -1,16 +1,18 @@
 [railway]
-  variable = ["RAILWAY_GIT_COMMIT_SHA={{.gitCommitHash}}"]
+  ignoreFiles = ["frontend/**", "data-processor/**", "crawl-data/**", "*.md", "*.json", "*.toml"]
 
-# Backend service - Java Spring Boot
-[railway.service.backend]
-  dockerfile = "./backend/Dockerfile"
-  primaryRegion = "ap-southeast"
+[build]
+  builder = "nixpacks"
+  buildCommand = "cd backend && mvn clean package -DskipTests -B"
+
+[nixpacks]
+  providers = ["node", "java"]
+
+[start]
+  command = "cd backend && java -jar target/*.jar"
+
+[deploy]
   healthcheckPath = "/actuator/health"
   healthcheckPort = 8080
-  internalPort = 8080
-
-# Frontend service - React/Vite + Nginx
-[railway.service.frontend]
-  dockerfile = "./frontend/Dockerfile"
-  primaryRegion = "ap-southeast"
-  internalPort = 80
+  restartPolicyType = "ON_FAILURE"
+  restartPolicyMaxRetries = 10
