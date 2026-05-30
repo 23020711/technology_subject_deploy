@@ -42,7 +42,7 @@ public class MultiPlatformPriceRefreshService {
     private final CrawlerRateLimiter rateLimiter;
     private final Map<String, PlatformPriceCrawler> crawlerMap;
     private final ExecutorService crawlerPool;
-    private final ProductSearchService productSearchService;
+    private final ProductSearchServiceInterface productSearchService;
 
     @Value("${pricehawk.scheduler.price-refresh.max-items-per-run:50}")
     private int maxItemsPerRun;
@@ -56,7 +56,7 @@ public class MultiPlatformPriceRefreshService {
             PlatformTransactionManager transactionManager,
             CrawlerRateLimiter rateLimiter,
             List<PlatformPriceCrawler> crawlers,
-            ProductSearchService productSearchService
+            ProductSearchServiceInterface productSearchService
     ) {
         this.productListingRepository = productListingRepository;
         this.priceRecordRepository = priceRecordRepository;

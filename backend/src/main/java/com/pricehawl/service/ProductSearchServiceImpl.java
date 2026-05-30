@@ -3,12 +3,12 @@ package com.pricehawl.service;
 import com.pricehawl.document.ProductDocument;
 import com.pricehawl.dto.ProductSearchDTO;
 import com.pricehawl.entity.Product;
-import com.pricehawl.entity.ProductListing;
 import com.pricehawl.mapper.ProductDocumentMapper;
 import com.pricehawl.repository.ProductRepository;
 import com.pricehawl.repository.ProductListingRepository;
 import com.pricehawl.repository.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -20,9 +20,13 @@ import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.*;
 
+/**
+ * ProductSearchService - chỉ active khi spring.elasticsearch.enabled=true
+ */
 @Service
 @RequiredArgsConstructor
-public class ProductSearchService {
+@ConditionalOnProperty(name = "spring.elasticsearch.enabled", havingValue = "true", matchIfMissing = false)
+public class ProductSearchServiceImpl implements ProductSearchServiceInterface {
 
     private final ProductRepository productRepository;
     private final ProductSearchRepository searchRepository;
@@ -30,96 +34,57 @@ public class ProductSearchService {
     private final ProductDocumentMapper documentMapper;
     private final ElasticsearchOperations elasticsearchOperations;
 
-    // =========================
-    // 🔄 1. SYNC DB → ELASTICSEARCH
-    // =========================
+    @Override
     @Transactional
     public void syncAll() {
-
         searchRepository.deleteAll();
         List<ProductDocument> docs = productRepository.findAll()
                 .stream()
                 .map(documentMapper::toDocument)
                 .toList();
-
         searchRepository.saveAll(docs);
-
         System.out.println("SYNCED DOCS = " + docs.size());
     }
 
-    // =========================
-    // 🔍 2. SEARCH (🔥 BEST PRICE)
-    // =========================
+    @Override
     @Cacheable(
             value = "product-search",
             key = "#keyword.toLowerCase()",
-            unless =
-                    "#result == null || " +
-                            "#result.isEmpty() || " +
-                            "#keyword.length() < 2"
+            unless = "#result == null || #result.isEmpty() || #keyword.length() < 2"
     )
     @Transactional
     public List<ProductSearchDTO> search(String keyword) {
-
-        // 1. Search Elasticsearch
         System.out.println("SEARCH FROM ELASTIC");
-        List<ProductDocument> docs =
-                searchRepository.search(keyword);
-
+        List<ProductDocument> docs = searchRepository.search(keyword);
         if (docs.isEmpty()) {
-
             System.out.println("KHONG TIM THAY DOCUMENT");
-
             return List.of();
         }
-
-        // 2. Map DTO trực tiếp từ ES document
-        List<ProductSearchDTO> result = docs.stream()
-
+        return docs.stream()
                 .map(doc -> ProductSearchDTO.builder()
-
                         .id(UUID.fromString(doc.getId()))
-
                         .name(doc.getName())
-
                         .brandName(doc.getBrandName())
-
                         .categoryName(doc.getCategoryName())
-
                         .imageUrl(doc.getImageUrl())
-
                         .bestPrice(doc.getBestPrice())
-
                         .originalPrice(doc.getOriginalPrice())
-
                         .discountPct(doc.getDiscountPct())
-
                         .bestPlatform(doc.getBestPlatform())
-
                         .score(doc.getScore())
-
                         .build())
-
                 .toList();
-
-
-        return result;
     }
-    @CacheEvict(
-            value = "product-search",
-            allEntries = true
-    )
+
+    @Override
+    @CacheEvict(value = "product-search", allEntries = true)
     public void clearSearchCache() {
     }
-    // =========================
-    // 🛟 3. FALLBACK (nếu ES lỗi)
-    // =========================
+
+    @Override
     @Transactional
     public List<ProductSearchDTO> searchFallback(String keyword) {
-
-        List<Product> products = productRepository
-                .findByNameContainingIgnoreCase(keyword);
-
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(keyword);
         return products.stream()
                 .map(p -> ProductSearchDTO.builder()
                         .id(p.getId())
@@ -131,43 +96,25 @@ public class ProductSearchService {
                 .toList();
     }
 
-    // =========================
-    // 🔄 4. SYNC 1 PRODUCT
-    // =========================
+    @Override
     @Transactional
     public void syncOne(Product product) {
         ProductDocument doc = documentMapper.toDocument(product);
         searchRepository.save(doc);
     }
+
+    @Override
     @Transactional
-    public void updateBestPriceOnly(
-            UUID productId,
-            Integer bestPrice,
-            String bestPlatform
-    ) {
+    public void updateBestPriceOnly(UUID productId, Integer bestPrice, String bestPlatform) {
         Document partialDoc = Document.create();
+        if (bestPrice != null) partialDoc.put("bestPrice", bestPrice);
+        if (bestPlatform != null) partialDoc.put("bestPlatform", bestPlatform);
+        if (partialDoc.isEmpty()) return;
 
-        if (bestPrice != null) {
-            partialDoc.put("bestPrice", bestPrice);
-        }
-
-        if (bestPlatform != null) {
-            partialDoc.put("bestPlatform", bestPlatform);
-        }
-
-        if (partialDoc.isEmpty()) {
-            return;
-        }
-
-        UpdateQuery query = UpdateQuery
-                .builder(productId.toString())
+        UpdateQuery query = UpdateQuery.builder(productId.toString())
                 .withDocument(partialDoc)
                 .build();
-
-        elasticsearchOperations.update(
-                query,
-                IndexCoordinates.of("products")
-        );
+        elasticsearchOperations.update(query, IndexCoordinates.of("products"));
         clearSearchCache();
     }
 }
