@@ -2,17 +2,8 @@
   ignoreFiles = ["frontend/**", "data-processor/**", "crawl-data/**", "*.md", "*.json", "*.toml"]
 
 [build]
-  builder = "nixpacks"
-  buildCommand = "cd backend && mvn clean package -DskipTests -B"
-
-[nixpacks]
-  providers = ["node", "java"]
-
-[start]
-  command = "cd backend && java -jar target/*.jar"
+  dockerfilePath = "backend/Dockerfile"
 
 [deploy]
-  healthcheckPath = "/actuator/health"
-  healthcheckPort = 8080
   restartPolicyType = "ON_FAILURE"
   restartPolicyMaxRetries = 10
