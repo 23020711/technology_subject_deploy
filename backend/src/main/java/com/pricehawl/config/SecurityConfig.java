@@ -1,6 +1,7 @@
 package com.pricehawl.config;
 
 import com.pricehawl.security.JwtAuthFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,19 +16,24 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${cors.allowed-origins:http://localhost:*,http://127.0.0.1:*,chrome-extension://*}")
+    private String allowedOrigins;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        // Dùng setAllowedOrigins("*") thay vì setAllowedOriginPatterns
-        // OK vì allowCredentials = false
-        config.setAllowedOrigins(List.of("*"));
-
+        config.setAllowCredentials(true);
+        config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setExposedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "X-Trending-Computed-At",
+                "X-Trending-Next-Refresh-After",
+                "X-Trending-Cache-Ttl-Seconds"
+        ));
         config.setMaxAge(3600L);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
@@ -48,14 +54,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Cho phép preflight request từ frontend
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // Auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
-
-                        // Swagger UI & OpenAPI
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -64,29 +65,17 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-
-                        // Public GET APIs
                         .requestMatchers(HttpMethod.GET,
                                 "/products/**",
                                 "/api/products/**",
                                 "/api/trending-deals/**",
                                 "/api/v1/price-history/**",
                                 "/api/compare/**",
-                                "/api/go/**",               // affiliate redirect
+                                "/api/go/**",
                                 "/api/recommendations/**"
                         ).permitAll()
-
-                        // AI Chat dùng POST nên phải permit riêng
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/ai-chat/**"
-                        ).permitAll()
-
-                        // Nếu sau này có GET cho AI Chat thì cũng cho qua
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/ai-chat/**"
-                        ).permitAll()
-
-                        // Các API còn lại cần đăng nhập
+                        .requestMatchers(HttpMethod.POST, "/api/ai-chat/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ai-chat/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

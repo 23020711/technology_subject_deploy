@@ -43,7 +43,7 @@ server:
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,chrome-extension://*}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,chrome-extension://*,https://technology-subject-deploy.vercel.app,https://*.vercel.app}
 
 management:
   endpoints:
