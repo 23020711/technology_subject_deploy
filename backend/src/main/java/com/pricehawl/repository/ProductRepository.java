@@ -26,6 +26,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     /**
      * Search products with optional platform filter
      */
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.listings WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> searchByKeyword(String keyword);
 }

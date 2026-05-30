@@ -61,11 +61,28 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
     }
 
     private ProductSearchDTO toSearchDTO(Product p) {
+        // Calculate best price and platform from listings
+        Integer bestPrice = null;
+        String bestPlatform = null;
+        if (p.getListings() != null && !p.getListings().isEmpty()) {
+            bestPrice = p.getListings().stream()
+                .map(l -> l.getCurrentPrice())
+                .filter(price -> price != null)
+                .min(Integer::compareTo)
+                .orElse(null);
+            if (bestPrice != null) {
+                bestPlatform = p.getListings().stream()
+                    .filter(l -> bestPrice.equals(l.getCurrentPrice()))
+                    .map(l -> l.getPlatform())
+                    .findFirst()
+                    .orElse(null);
+            }
+        }
         return ProductSearchDTO.builder()
             .id(p.getId())
             .name(p.getName())
-            .bestPrice(p.getBestPrice())
-            .bestPlatform(p.getBestPlatform())
+            .bestPrice(bestPrice)
+            .bestPlatform(bestPlatform)
             .imageUrl(p.getImageUrl())
             .categoryName(p.getCategory() != null ? p.getCategory().getName() : null)
             .build();
