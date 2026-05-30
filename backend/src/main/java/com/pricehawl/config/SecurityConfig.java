@@ -16,14 +16,20 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:*,http://127.0.0.1:*,chrome-extension://*}")
+    @Value("${cors.allowed-origins:http://localhost:*,http://127.0.0.1:*,https://technology-subject-deploy.vercel.app,https://*.vercel.app}")
     private String allowedOrigins;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
+        
+        // Parse origins - handle wildcard patterns properly
+        List<String> patterns = java.util.Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(p -> !p.isEmpty())
+                .toList();
+        config.setAllowedOriginPatterns(patterns);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of(
