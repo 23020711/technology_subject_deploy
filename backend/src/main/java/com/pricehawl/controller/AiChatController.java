@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 @RestController
 @RequestMapping("/api/ai-chat")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class AiChatController {
 
     private final AiChatService aiChatService;

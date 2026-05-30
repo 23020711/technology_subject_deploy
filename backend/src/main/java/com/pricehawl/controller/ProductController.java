@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(path = {"/products", "/api/products"})
-@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);

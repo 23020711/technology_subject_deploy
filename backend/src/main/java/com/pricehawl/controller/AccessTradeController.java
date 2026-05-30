@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping("/api/admin/accesstrade")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class AccessTradeController {
 
     private final AccessTradeService accessTradeService;
