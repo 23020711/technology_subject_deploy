@@ -77,7 +77,7 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
                     .map(l -> l.getPlatform())
                     .findFirst()
                     .orElse(null);
-                bestPlatform = platform != null ? platform.name() : null;
+                bestPlatform = platform != null ? platform.getName() : null;
             }
         }
         return ProductSearchDTO.builder()
