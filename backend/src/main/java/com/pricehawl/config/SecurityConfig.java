@@ -1,7 +1,6 @@
 package com.pricehawl.config;
 
 import com.pricehawl.security.JwtAuthFilter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,30 +15,18 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins:}")
-    private String allowedOrigins;
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         
-        // Parse origins - filter out invalid patterns like standalone "*"
-        List<String> patterns;
-        if (allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
-            patterns = java.util.Arrays.stream(allowedOrigins.split(","))
-                    .map(String::trim)
-                    .filter(p -> !p.isEmpty() && !p.equals("*"))
-                    .toList();
-        } else {
-            // Default patterns - must not contain standalone "*"
-            patterns = List.of(
-                    "http://localhost:*",
-                    "http://127.0.0.1:*",
-                    "https://technology-subject-deploy.vercel.app",
-                    "https://*.vercel.app"
-            );
-        }
+        // Hardcoded safe patterns - no "*" standalone allowed with credentials
+        List<String> patterns = List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "https://technology-subject-deploy.vercel.app",
+                "https://*.vercel.app"
+        );
         config.setAllowedOriginPatterns(patterns);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
