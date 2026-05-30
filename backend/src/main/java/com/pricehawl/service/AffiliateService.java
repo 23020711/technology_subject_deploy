@@ -3,20 +3,19 @@ package com.pricehawl.service;
 import com.pricehawl.entity.AffiliateClick;
 import com.pricehawl.repository.AffiliateClickRepository;
 import com.pricehawl.repository.ProductListingRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AffiliateService {
 
     private static final String PUBLISHER_ID = "6964549063767105843";
@@ -26,7 +25,6 @@ public class AffiliateService {
         "tiki",    "4348614231480407268"
     );
 
-    // Bot user agents cần filter
     private static final java.util.List<String> BOT_AGENTS = java.util.List.of(
         "googlebot", "bingbot", "yandex", "baiduspider", "facebookexternalhit"
     );
@@ -34,18 +32,28 @@ public class AffiliateService {
     private final AffiliateClickRepository clickRepository;
     private final ProductListingRepository listingRepository;
     private final StringRedisTemplate redisTemplate;
+    private final boolean redisAvailable;
+    
+    // Fallback in-memory cache when Redis is not available
+    private final ConcurrentHashMap<String, Long> inMemoryCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> inMemoryExpiry = new ConcurrentHashMap<>();
 
-    /**
-     * Xử lý click affiliate:
-     * 1. Kiểm tra bot
-     * 2. Chống spam (Redis)
-     * 3. Lưu click async
-     * 4. Trả về affiliate URL để redirect
-     */
+    public AffiliateService(
+            @Autowired(required = false) StringRedisTemplate redisTemplate,
+            AffiliateClickRepository clickRepository,
+            ProductListingRepository listingRepository) {
+        this.redisTemplate = redisTemplate;
+        this.redisAvailable = redisTemplate != null;
+        this.clickRepository = clickRepository;
+        this.listingRepository = listingRepository;
+        if (!redisAvailable) {
+            log.warn("Redis not available, using in-memory spam protection");
+        }
+    }
+
     public String processClick(UUID productId, String platform,
                                String userId, String ip, String userAgent) {
 
-        // Rule 3 — Filter bot
         if (isBot(userAgent)) {
             log.debug("Bot detected, skipping: {}", userAgent);
             return buildAffiliateUrl(productId, platform, null);
@@ -53,30 +61,67 @@ public class AffiliateService {
 
         String clickId = UUID.randomUUID().toString();
 
-        // Rule 1 — Cùng IP + product trong 5 phút → chỉ tính 1 click
         String spamKey1 = "aff:spam1:" + ip + ":" + productId;
-        Boolean firstClick = redisTemplate.opsForValue()
-            .setIfAbsent(spamKey1, clickId, 5, TimeUnit.MINUTES);
-
-        // Rule 2 — Cùng IP vượt 10 click/phút → nghi bot
-        String spamKey2 = "aff:spam2:" + ip;
-        Long clickCount = redisTemplate.opsForValue().increment(spamKey2);
-        if (clickCount != null && clickCount == 1) {
-            redisTemplate.expire(spamKey2, 1, TimeUnit.MINUTES);
+        Boolean firstClick;
+        
+        if (redisAvailable) {
+            firstClick = redisTemplate.opsForValue()
+                .setIfAbsent(spamKey1, clickId, 5, TimeUnit.MINUTES);
+        } else {
+            firstClick = inMemorySetIfAbsent(spamKey1, clickId, 5, TimeUnit.MINUTES);
         }
+
+        String spamKey2 = "aff:spam2:" + ip;
+        Long clickCount;
+        
+        if (redisAvailable) {
+            clickCount = redisTemplate.opsForValue().increment(spamKey2);
+            if (clickCount != null && clickCount == 1) {
+                redisTemplate.expire(spamKey2, 1, TimeUnit.MINUTES);
+            }
+        } else {
+            clickCount = inMemoryIncrement(spamKey2);
+        }
+        
         boolean suspicious = clickCount != null && clickCount > 10;
 
         if (Boolean.TRUE.equals(firstClick) && !suspicious) {
-            // Click hợp lệ — lưu async không block redirect
             UUID userUuid = null;
             try { userUuid = userId != null ? UUID.fromString(userId) : null; } catch (Exception ignored) {}
             saveClickAsync(userUuid, productId, platform, clickId, ip, userAgent);
         } else {
             log.debug("Spam click filtered: ip={}, product={}, count={}", ip, productId, clickCount);
-            // Vẫn redirect nhưng không tăng số đếm
         }
 
         return buildAffiliateUrl(productId, platform, clickId);
+    }
+    
+    private boolean inMemorySetIfAbsent(String key, String value, long timeout, TimeUnit unit) {
+        long now = System.currentTimeMillis();
+        long deadline = now + unit.toMillis(timeout);
+        
+        Long existingExpiry = inMemoryExpiry.get(key);
+        if (existingExpiry != null && existingExpiry > now) {
+            return false;
+        }
+        
+        inMemoryCache.put(key, deadline);
+        inMemoryExpiry.put(key, deadline);
+        return true;
+    }
+    
+    private Long inMemoryIncrement(String key) {
+        long now = System.currentTimeMillis();
+        String countKey = key + ":count";
+        
+        Long current = inMemoryCache.get(countKey);
+        if (current == null) {
+            inMemoryCache.put(countKey, 1L);
+            inMemoryExpiry.put(key, now + TimeUnit.MINUTES.toMillis(1));
+            return 1L;
+        }
+        inMemoryCache.put(countKey, current + 1);
+        return current + 1;
     }
 
     @Async
@@ -99,7 +144,6 @@ public class AffiliateService {
     }
 
     private String buildAffiliateUrl(UUID productId, String platform, String clickId) {
-        // Lấy URL gốc từ DB
         String productUrl = listingRepository
             .findByProductIdAndPlatformNameIgnoreCase(productId, platform)
             .stream()
@@ -115,7 +159,6 @@ public class AffiliateService {
         String platformKey = platform.toLowerCase();
         String campaignId = CAMPAIGN_IDS.get(platformKey);
 
-        // Sàn không có affiliate → link gốc
         if (campaignId == null) return productUrl;
 
         String encoded = Base64.getEncoder().encodeToString(productUrl.getBytes())

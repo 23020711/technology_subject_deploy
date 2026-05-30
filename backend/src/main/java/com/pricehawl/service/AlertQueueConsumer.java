@@ -2,8 +2,8 @@ package com.pricehawl.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AlertQueueConsumer {
 
     private static final String ALERT_QUEUE_KEY = "alert:queue";
@@ -21,13 +20,27 @@ public class AlertQueueConsumer {
     private final StringRedisTemplate redisTemplate;
     private final PriceAlertService priceAlertService;
     private final ObjectMapper objectMapper;
+    private final boolean redisAvailable;
 
-    /**
-     * Chạy mỗi 5 giây — đọc queue và xử lý alert.
-     * Tách biệt hoàn toàn với crawler.
-     */
+    public AlertQueueConsumer(
+            @Autowired(required = false) StringRedisTemplate redisTemplate,
+            PriceAlertService priceAlertService,
+            ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
+        this.priceAlertService = priceAlertService;
+        this.objectMapper = objectMapper;
+        this.redisAvailable = redisTemplate != null;
+        if (!redisAvailable) {
+            log.warn("Redis not available, AlertQueueConsumer disabled");
+        }
+    }
+
     @Scheduled(fixedDelay = 5000)
     public void consume() {
+        if (!redisAvailable) {
+            return;
+        }
+        
         int processed = 0;
         while (processed < BATCH_SIZE) {
             String message = redisTemplate.opsForList().leftPop(ALERT_QUEUE_KEY);
