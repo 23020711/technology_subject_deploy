@@ -23,6 +23,7 @@ spring:
 
   elasticsearch:
     uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    enabled: ${ELASTICSEARCH_ENABLED:false}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
