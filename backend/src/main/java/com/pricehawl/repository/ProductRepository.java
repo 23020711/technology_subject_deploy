@@ -3,6 +3,7 @@ package com.pricehawl.repository;
 import com.pricehawl.entity.Product;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
      * Fallback search (chỉ dùng khi Elasticsearch lỗi)
      */
     List<Product> findByNameContainingIgnoreCase(String keyword);
+
+    /**
+     * Search products with optional platform filter
+     */
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Product> searchByKeyword(String keyword);
 }

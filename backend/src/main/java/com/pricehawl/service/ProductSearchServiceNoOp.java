@@ -2,19 +2,26 @@ package com.pricehawl.service;
 
 import com.pricehawl.dto.ProductSearchDTO;
 import com.pricehawl.entity.Product;
+import com.pricehawl.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * NoOp implementation - khi Elasticsearch disabled.
+ * Fallback to database search.
  */
 @Service
 @ConditionalOnProperty(name = "spring.elasticsearch.enabled", havingValue = "false", matchIfMissing = false)
+@RequiredArgsConstructor
 public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
+
+    private final ProductRepository productRepository;
 
     @Override
     public void syncAll() {
@@ -23,13 +30,19 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
 
     @Override
     public List<ProductSearchDTO> search(String keyword) {
-        // Fallback to database search
-        return Collections.emptyList();
+        return searchFallback(keyword);
     }
 
     @Override
     public List<ProductSearchDTO> searchFallback(String keyword) {
-        return Collections.emptyList();
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        String searchTerm = "%" + keyword.trim().toLowerCase() + "%";
+        return productRepository.searchByKeyword(searchTerm).stream()
+            .limit(50)
+            .map(this::toSearchDTO)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -45,5 +58,16 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
     @Override
     public void clearSearchCache() {
         // No-op
+    }
+
+    private ProductSearchDTO toSearchDTO(Product p) {
+        return ProductSearchDTO.builder()
+            .id(p.getId())
+            .name(p.getName())
+            .bestPrice(p.getBestPrice())
+            .bestPlatform(p.getBestPlatform())
+            .imageUrl(p.getImageUrl())
+            .categoryName(p.getCategory() != null ? p.getCategory().getName() : null)
+            .build();
     }
 }
