@@ -93,7 +93,7 @@ export default function AppHeader({
   const fetchUnreadCount = useCallback(async () => {
     if (!user) return
     try {
-      const res = await apiClient.get('/notifications/unread-count')
+      const res = await apiClient.get('/api/notifications/unread-count')
       setUnreadCount(res.data.count ?? 0)
     } catch {
       // silent
@@ -108,7 +108,7 @@ export default function AppHeader({
 
   const fetchNotifications = async () => {
     try {
-      const res = await apiClient.get('/notifications')
+      const res = await apiClient.get('/api/notifications')
       setNotifications(res.data)
     } catch {
       // silent
@@ -125,7 +125,7 @@ export default function AppHeader({
 
   const handleMarkAllRead = async () => {
     try {
-      await apiClient.patch('/notifications/read-all')
+      await apiClient.patch('/api/notifications/read-all')
       setUnreadCount(0)
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
     } catch {

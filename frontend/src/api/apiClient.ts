@@ -4,7 +4,11 @@ import { supabase } from '../lib/supabaseClient';
 function resolveBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL as string | undefined;
   const trimmed = raw != null ? String(raw).trim().replace(/\/$/, '') : '';
-  return trimmed.length > 0 ? trimmed : '/api';
+  // Fallback to Railway backend URL if not set
+  if (trimmed.length === 0 || trimmed === '/api') {
+    return 'https://technologysubjectdeploy-production-ad20.up.railway.app';
+  }
+  return trimmed;
 }
 
 export const API_BASE_URL = resolveBaseUrl();
