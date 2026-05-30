@@ -1,6 +1,7 @@
 package com.pricehawl.service;
 
 import com.pricehawl.dto.ProductSearchDTO;
+import com.pricehawl.entity.Platform;
 import com.pricehawl.entity.Product;
 import com.pricehawl.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,11 +72,12 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
                 .min(Integer::compareTo)
                 .orElse(null);
             if (bestPrice != null) {
-                bestPlatform = p.getListings().stream()
+                Platform platform = p.getListings().stream()
                     .filter(l -> bestPrice.equals(l.getCurrentPrice()))
                     .map(l -> l.getPlatform())
                     .findFirst()
                     .orElse(null);
+                bestPlatform = platform != null ? platform.name() : null;
             }
         }
         return ProductSearchDTO.builder()
