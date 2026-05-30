@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -25,8 +26,8 @@ public class RedisConfig {
             @Autowired(required = false) RedisConnectionFactory factory
     ) {
         if (factory == null) {
-            log.warn("Redis not available, cache manager disabled");
-            return null;
+            log.warn("Redis not available, using in-memory cache");
+            return new ConcurrentMapCacheManager("product-search", "trendingDeals");
         }
 
         GenericJackson2JsonRedisSerializer serializer =
