@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -12,7 +14,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(exclude = {
     ElasticsearchDataAutoConfiguration.class,
     ElasticsearchRestClientAutoConfiguration.class,
-    ElasticsearchRepositoriesAutoConfiguration.class
+    ElasticsearchRepositoriesAutoConfiguration.class,
+    RedisAutoConfiguration.class,
+    RedisRepositoriesAutoConfiguration.class
 })
 @EnableCaching
 @EnableScheduling
