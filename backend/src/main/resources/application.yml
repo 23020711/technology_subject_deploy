@@ -29,9 +29,10 @@ spring:
         order_updates: true
 
   elasticsearch:
-    uris: ${ELASTICSEARCH_URIS}
-    username: ${ELASTICSEARCH_USERNAME}
-    password: ${ELASTICSEARCH_PASSWORD}
+    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
+    enabled: ${ELASTICSEARCH_ENABLED:false}
   data:
     redis:
       host: ${REDIS_HOST:${REDISHOST:localhost}}
