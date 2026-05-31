@@ -19,18 +19,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // IMPORTANT: Wildcard patterns like `https://*.vercel.app` DON'T work
-        // with `allowCredentials(true)` in CORS - must list explicit origins
-        // BUT setAllowedOriginPatterns() with wildcard DOES work in Spring Security 6.x
+        // Hardcoded safe patterns - no "*" standalone with credentials
         List<String> allowedOrigins = List.of(
                 "https://technology-subject-deploy.vercel.app",
                 "https://*.vercel.app",
-                "https://technologysubjectdeploy-production-156e.up.railway.app",
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:8080",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:8080"
+                "http://localhost:*",
+                "http://127.0.0.1:*"
         );
 
         config.setAllowedOriginPatterns(allowedOrigins);
@@ -73,7 +67,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/health").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/products/**",
                                 "/api/products/**",
