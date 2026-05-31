@@ -39,8 +39,7 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
         if (keyword == null || keyword.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        String searchTerm = "%" + keyword.trim().toLowerCase() + "%";
-        return productRepository.searchByKeyword(searchTerm).stream()
+        return productRepository.findByNameContainingIgnoreCase(keyword.trim()).stream()
             .limit(50)
             .map(this::toSearchDTO)
             .collect(Collectors.toList());
