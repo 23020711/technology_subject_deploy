@@ -19,12 +19,15 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Hardcoded safe patterns - no "*" standalone with credentials
+        // IMPORTANT: Wildcard patterns like `https://*.vercel.app` DON'T work
+        // with `allowCredentials(true)` in CORS - must list explicit origins
         List<String> allowedOrigins = List.of(
                 "https://technology-subject-deploy.vercel.app",
-                "https://*.vercel.app",
-                "http://localhost:*",
-                "http://127.0.0.1:*"
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:8080",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:8080"
         );
 
         config.setAllowedOriginPatterns(allowedOrigins);
