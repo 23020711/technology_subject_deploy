@@ -9,6 +9,8 @@ import com.pricehawl.repository.ProductRepository;
 import com.pricehawl.repository.ProductListingRepository;
 import com.pricehawl.repository.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -23,6 +25,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ProductSearchService {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductSearchService.class);
 
     private final ProductRepository productRepository;
     private final ProductSearchRepository searchRepository;
@@ -44,7 +48,7 @@ public class ProductSearchService {
 
         searchRepository.saveAll(docs);
 
-        System.out.println("SYNCED DOCS = " + docs.size());
+        log.info("Indexed {} products into Elasticsearch", docs.size());
     }
 
     // =========================

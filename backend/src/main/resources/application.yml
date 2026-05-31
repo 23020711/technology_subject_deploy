@@ -32,7 +32,7 @@ spring:
     uris: ${ELASTICSEARCH_URI:http://localhost:9200}
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    enabled: ${ELASTICSEARCH_ENABLED:false}
+    enabled: ${ELASTICSEARCH_ENABLED:true}
   data:
     redis:
       host: ${REDIS_HOST:${REDISHOST:localhost}}
