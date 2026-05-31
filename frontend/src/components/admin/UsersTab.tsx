@@ -69,7 +69,7 @@ export default function UsersTab() {
         const params: Record<string, string> = {};
         if (q) params.search = q;
         if (plan && plan !== 'all') params.plan = plan;
-        apiClient.get('/admin/users', { params })
+        apiClient.get('/api/admin/users', { params })
             .then(res => setUsers(res.data))
             .catch(console.error)
             .finally(() => setUsersLoading(false));
@@ -91,21 +91,21 @@ export default function UsersTab() {
         if (newPlan === 'premium') {
             setUpgradeUserId(id);
         } else {
-            await apiClient.patch(`/admin/users/${id}`, { plan: 'free' });
+            await apiClient.patch(`/api/admin/users/${id}`, { plan: 'free' });
             setUsers(prev => prev.map(u => u.id === id ? { ...u, plan: 'free', premium_expires_at: null } : u));
         }
     };
 
     const handleUpgradeConfirm = async (months: number) => {
         if (!upgradeUserId) return;
-        await apiClient.patch(`/admin/users/${upgradeUserId}`, { plan: 'premium', months: String(months) });
+        await apiClient.patch(`/api/admin/users/${upgradeUserId}`, { plan: 'premium', months: String(months) });
         // Reload để lấy premium_expires_at mới
         fetchUsers(search, planFilter);
         setUpgradeUserId(null);
     };
 
     const handleDelete = async (id: string) => {
-        await apiClient.delete(`/admin/users/${id}`);
+        await apiClient.delete(`/api/admin/users/${id}`);
         setUsers(prev => prev.filter(u => u.id !== id));
         setDeleteConfirm(null);
     };

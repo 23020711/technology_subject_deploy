@@ -42,7 +42,7 @@ export default function AffiliateTab() {
         const params = new URLSearchParams({ page: String(pg), size: String(PAGE_SIZE) });
         if (p !== 'all') params.set('platform', p);
 
-        apiClient.get(`/admin/affiliate-clicks?${params}`)
+        apiClient.get(`/api/admin/affiliate-clicks?${params}`)
             .then(res => {
                 console.log('[AffiliateTab] byDay:', res.data.byDay);
                 if (res.data.byDay?.length > 0) {

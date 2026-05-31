@@ -13,13 +13,13 @@ export default function OverviewTab() {
 
     useEffect(() => {
         // Metrics load ngay — không có AccessTrade, nhanh
-        apiClient.get('/admin/metrics')
+        apiClient.get('/api/admin/metrics')
             .then(res => setMetrics(res.data))
             .catch(console.error)
             .finally(() => setMetricsLoading(false));
 
         // Transactions load riêng — có thể chậm do AccessTrade API
-        apiClient.get('/admin/transactions')
+        apiClient.get('/api/admin/transactions')
             .then(res => setTransactions(res.data))
             .catch(() => setTransactions({ total: 0, data: [] }))
             .finally(() => setTxLoading(false));

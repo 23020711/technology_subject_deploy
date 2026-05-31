@@ -66,7 +66,7 @@ export default function CrawlerTab() {
     // Fetch status (queue + isRunning) — gọi thường xuyên
     const fetchStatus = () => {
         setStatusLoading(true);
-        apiClient.get('/admin/crawler/status')
+        apiClient.get('/api/admin/crawler/status')
             .then(res => setStatus(res.data))
             .catch(console.error)
             .finally(() => setStatusLoading(false));
@@ -75,7 +75,7 @@ export default function CrawlerTab() {
     // Fetch platformStats — chỉ gọi khi cần (nặng)
     const fetchPlatformStats = () => {
         setStatsLoading(true);
-        apiClient.get('/admin/crawler/platform-stats')
+        apiClient.get('/api/admin/crawler/platform-stats')
             .then(res => setPlatformStats(res.data))
             .catch(console.error)
             .finally(() => setStatsLoading(false));
@@ -85,7 +85,7 @@ export default function CrawlerTab() {
         setErrorsLoading(true);
         const params: Record<string, unknown> = { page, size: PAGE_SIZE };
         if (platform && platform !== 'all') params.platform = platform;
-        apiClient.get('/admin/crawler/errors', { params })
+        apiClient.get('/api/admin/crawler/errors', { params })
             .then(res => {
                 setErrors(res.data);
                 setTotalErrors(parseInt(res.headers['x-total-count'] ?? '0'));
@@ -132,7 +132,7 @@ export default function CrawlerTab() {
     const handleTrigger = async (priority: string) => {
         setTriggering(priority);
         try {
-            await apiClient.post(`/admin/crawler/trigger/${priority}`);
+            await apiClient.post(`/api/admin/crawler/trigger/${priority}`);
             setTimeout(fetchStatus, 1000);
         } catch (e) {
             console.error(e);
@@ -144,7 +144,7 @@ export default function CrawlerTab() {
     const handleStop = async () => {
         setStopping(true);
         try {
-            await apiClient.post('/admin/crawler/stop');
+            await apiClient.post('/api/admin/crawler/stop');
             setTimeout(fetchStatus, 500);
         } catch (e) {
             console.error(e);
@@ -154,14 +154,14 @@ export default function CrawlerTab() {
     };
 
     const handleDeleteError = async (id: string) => {
-        await apiClient.delete(`/admin/crawler/errors/${id}`);
+        await apiClient.delete(`/api/admin/crawler/errors/${id}`);
         setErrors(prev => prev.filter(e => e.id !== id));
         setTotalErrors(prev => prev - 1);
     };
 
     const handleDeleteAllErrors = async () => {
         const params = platformFilter !== 'all' ? { platform: platformFilter } : {};
-        await apiClient.delete('/admin/crawler/errors', { params });
+        await apiClient.delete('/api/admin/crawler/errors', { params });
         setErrors([]);
         setTotalErrors(0);
         setErrorPage(0);

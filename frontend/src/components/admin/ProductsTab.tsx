@@ -60,7 +60,7 @@ export default function ProductsTab() {
         if (stat !== 'all') params.status = stat;
         if (stk !== 'all') params.inStock = stk === 'true';
         if (stk === 'false' && oos > 0) params.outOfStockMonths = oos;
-        apiClient.get('/admin/products', { params })
+        apiClient.get('/api/admin/products', { params })
             .then(res => {
                 setProducts(res.data);
                 setTotal(parseInt(res.headers['x-total-count'] ?? '0'));
@@ -71,7 +71,7 @@ export default function ProductsTab() {
     };
 
     const fetchStats = () => {
-        apiClient.get('/admin/products/out-of-stock-stats')
+        apiClient.get('/api/admin/products/out-of-stock-stats')
             .then(res => setStats(res.data))
             .catch(console.error);
     };
@@ -129,11 +129,11 @@ export default function ProductsTab() {
         setActionResult(null);
         try {
             if (isOutOfStockHidden) {
-                const res = await apiClient.post('/admin/products/show-out-of-stock');
+                const res = await apiClient.post('/api/admin/products/show-out-of-stock');
                 setActionResult(`Đã hiện lại ${res.data.shown || 'các'} sản phẩm.`);
                 setIsOutOfStockHidden(false);
             } else {
-                const res = await apiClient.post('/admin/products/hide-out-of-stock');
+                const res = await apiClient.post('/api/admin/products/hide-out-of-stock');
                 setActionResult(`Đã ẩn ${res.data.hidden || 'các'} sản phẩm hết hàng.`);
                 setIsOutOfStockHidden(true);
             }
