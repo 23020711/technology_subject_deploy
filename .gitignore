@@ -1,0 +1,9 @@
+node_modules/ 
+backend/logs/app.log
+logs/app.log
+logs/
+*.log
+hs_err_pid*
+replay_pid*
+.idea/
+*.iml
