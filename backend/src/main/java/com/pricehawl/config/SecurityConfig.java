@@ -96,7 +96,8 @@ public class SecurityConfig {
                                 "/api/notifications/**",
                                 "/notifications/**",
                                 "/api/alerts/**",
-                                "/alerts/**"
+                                "/alerts/**",
+                                "/ai-chat/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/ai-chat/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai-chat/**").permitAll()
