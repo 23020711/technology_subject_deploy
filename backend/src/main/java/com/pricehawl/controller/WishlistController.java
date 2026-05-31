@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/wishlist")
+@RequestMapping(path = {"/api/wishlist", "/wishlist"})
 @CrossOrigin(origins = "http://localhost:5173")
 public class WishlistController {
 

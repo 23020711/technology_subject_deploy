@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping(path = {"/api/notifications", "/notifications"})
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
