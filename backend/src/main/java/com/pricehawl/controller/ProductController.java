@@ -3,26 +3,23 @@ package com.pricehawl.controller;
 import com.pricehawl.dto.AiRecommendationDTO;
 import com.pricehawl.dto.ProductSearchDTO;
 import com.pricehawl.repository.AiChatRepository;
-import com.pricehawl.service.ProductSearchService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.pricehawl.service.ProductSearchServiceInterface;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping(path = {"/products", "/api/products"})
 @CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
-
-    private final ProductSearchService service;
+    private final ProductSearchServiceInterface service;
     private final AiChatRepository aiChatRepository;
 
-    public ProductController(ProductSearchService service, AiChatRepository aiChatRepository) {
+    public ProductController(ProductSearchServiceInterface service, AiChatRepository aiChatRepository) {
         this.service = service;
         this.aiChatRepository = aiChatRepository;
     }
