@@ -8,7 +8,7 @@ import com.pricehawl.entity.User;
 import com.pricehawl.repository.*;
 import com.pricehawl.service.AccessTradeService;
 import com.pricehawl.service.MultiPlatformPriceRefreshService;
-import com.pricehawl.service.ProductSearchService;
+import com.pricehawl.service.ProductSearchServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class AdminController {
     private final CrawlErrorRepository crawlErrorRepository;
     private final AccessTradeService accessTradeService;
     private final MultiPlatformPriceRefreshService refreshService;
-    private final ProductSearchService productSearchService;
+    private final ProductSearchServiceInterface productSearchService;
     private final com.pricehawl.repository.ProductSearchRepository productSearchRepository;
     private final com.pricehawl.repository.PaymentRepository paymentRepository;
 

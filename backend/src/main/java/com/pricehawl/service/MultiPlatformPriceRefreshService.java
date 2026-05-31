@@ -12,6 +12,7 @@ import com.pricehawl.service.model.PriceRefreshJobDTO;
 import com.pricehawl.service.model.PriceRefreshResultDTO;
 import com.pricehawl.service.model.PriceSnapshotDTO;
 import jakarta.annotation.PreDestroy;
+import com.pricehawl.service.ProductSearchServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +43,7 @@ public class MultiPlatformPriceRefreshService {
     private final CrawlerRateLimiter rateLimiter;
     private final Map<String, PlatformPriceCrawler> crawlerMap;
     private final ExecutorService crawlerPool;
-    private final ProductSearchService productSearchService;
+    private final ProductSearchServiceInterface productSearchService;
 
     @Value("${pricehawk.scheduler.price-refresh.max-items-per-run:50}")
     private int maxItemsPerRun;
@@ -56,7 +57,7 @@ public class MultiPlatformPriceRefreshService {
             PlatformTransactionManager transactionManager,
             CrawlerRateLimiter rateLimiter,
             List<PlatformPriceCrawler> crawlers,
-            ProductSearchService productSearchService
+            ProductSearchServiceInterface productSearchService
     ) {
         this.productListingRepository = productListingRepository;
         this.priceRecordRepository = priceRecordRepository;

@@ -1,7 +1,7 @@
 package com.pricehawl.config;
 
 import com.pricehawl.repository.ProductSearchRepository;
-import com.pricehawl.service.ProductSearchService;
+import com.pricehawl.service.ProductSearchServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "spring.elasticsearch.enabled", havingValue = "true", matchIfMissing = false)
 public class ElasticsearchIndexInitializer implements ApplicationRunner {
 
-    private final ProductSearchService productSearchService;
+    private final ProductSearchServiceInterface productSearchService;
     private final ProductSearchRepository productSearchRepository;
     private final ElasticsearchOperations elasticsearchOperations;
 
