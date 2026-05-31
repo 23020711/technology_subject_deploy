@@ -59,6 +59,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .addFilterBefore(
+                        jwtFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
@@ -97,10 +101,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/ai-chat/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai-chat/**").permitAll()
                         .anyRequest().authenticated()
-                )
-                .addFilterBefore(
-                        jwtFilter,
-                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
