@@ -16,6 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/alerts")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class PriceAlertController {
 
     private final PriceAlertService alertService;

@@ -1,89 +1,55 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
-    username: ${SPRING_DATASOURCE_USERNAME:}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?sslmode=require
+    username: "postgres.astkanfsacxriwprspqr"
+    password: "PriceHawl123@"
     driver-class-name: org.postgresql.Driver
 
     hikari:
-      maximum-pool-size: 3
-      minimum-idle: 1
-      idle-timeout: 10000
-      max-lifetime: 30000
+      # Tăng số lượng kết nối để không phải xếp hàng chờ (Queueing)
+      maximum-pool-size: 6
+      minimum-idle: 5
+      # CỰC KỲ QUAN TRỌNG: Giữ kết nối luôn "nóng" sang Hàn Quốc để giảm ping
+      keepalive-time: 30000 
+      idle-timeout: 60000
+      max-lifetime: 1800000
       connection-timeout: 30000
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: public
+        # Tối ưu hóa việc lấy dữ liệu hàng loạt
+        jdbc.batch_size: 25
+        order_inserts: true
+        order_updates: true
 
   elasticsearch:
-    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
-    enabled: ${ELASTICSEARCH_ENABLED:false}
+    uris: http://localhost:9200
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      host: localhost
+      port: 6379
 
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
-    validate-on-migrate: false
-    validate-baseline-on-migrate: true
 
 server:
-  port: ${PORT:8080}
-  address: ${SERVER_HOST:0.0.0.0}
-
-# CORS Configuration
-cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,https://technology-subject-deploy.vercel.app,https://*.vercel.app}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: when_authorized
-      probes:
-        enabled: true
-  health:
-    redis:
-      enabled: ${REDIS_ENABLED:false}
-    elasticsearch:
-      enabled: ${ELASTICSEARCH_ENABLED:false}
-
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    operations-sorter: method
-    tags-sorter: alpha
-    display-request-duration: true
-  show-actuator: false
-
-supabase:
-  url: ${SUPABASE_URL:}
-  api:
-    key: ${SUPABASE_API_KEY:}
+  port: 8080
 
 logging:
   level:
     root: WARN
     org.springframework.security: WARN
+    # INFO giúp tránh nghẽn I/O hơn so với DEBUG khi hệ thống chạy thực tế
     com.pricehawl.service.MultiPlatformPriceRefreshService: INFO
-    com.pricehawl.service.crawler: DEBUG
+    com.pricehawl.service.crawler: INFO
 
 pricehawk:
   debug:
@@ -91,7 +57,7 @@ pricehawk:
 
   scheduler:
     price-refresh:
-      enabled: ${SCHEDULER_ENABLED:false}
+      enabled: false
       cron: "0 */15 * * * *"
       zone: "Asia/Bangkok"
       max-items-per-run: 50
@@ -102,13 +68,19 @@ pricehawk:
     thread-pool-size: 5
 
 resend:
-  api-key: ${RESEND_API_KEY:}
+  api-key: re_UHgo6tTR_98Uk3AAy2Af7eYRzTSi7BoxE
 
 ai:
   base-url: ${AI_BASE_URL:https://generativelanguage.googleapis.com}
-  api-key: ${AI_API_KEY:}
+  api-key: ${AI_API_KEY:AIzaSyDPtoRBuHYLFfDmLSj9PvvcWuFXzlSnqZA}
   model: ${AI_MODEL:gemini-2.5-flash}
   enable-search: true
 
+# AccessTrade & Other configs
 accesstrade:
-  api-key: ${ACCESSTRADE_API_KEY:}
+  api-key: Ufa06E7uTCRm4kr89slTopHetE6uiZ04
+
+supabase:
+  url: "${SUPABASE_URL:https://astkanfsacxriwprspqr.supabase.co}"
+  api:
+    key: "${SUPABASE_API_KEY:sb_publishable_eT1klaZ7funqt0MuifuEWA_ea7Zixc9}"

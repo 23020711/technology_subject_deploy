@@ -18,26 +18,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        
-        // Hardcoded safe patterns - no "*" standalone allowed with credentials
-        List<String> patterns = List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "https://technology-subject-deploy.vercel.app",
-                "https://*.vercel.app"
-        );
-        config.setAllowedOriginPatterns(patterns);
+
+        // Dùng setAllowedOrigins("*") thay vì setAllowedOriginPatterns
+        // OK vì allowCredentials = false
+        config.setAllowedOrigins(List.of("*"));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of(
-                "Authorization",
-                "Content-Type",
-                "X-Trending-Computed-At",
-                "X-Trending-Next-Refresh-After",
-                "X-Trending-Cache-Ttl-Seconds"
-        ));
+        config.setAllowCredentials(false);
         config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
@@ -58,9 +48,14 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Cho phép preflight request từ frontend
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
+
+                        // Swagger UI & OpenAPI
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -69,19 +64,29 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
+
+                        // Public GET APIs
                         .requestMatchers(HttpMethod.GET,
                                 "/products/**",
                                 "/api/products/**",
                                 "/api/trending-deals/**",
                                 "/api/v1/price-history/**",
                                 "/api/compare/**",
-                                "/api/go/**",
-                                "/api/recommendations/**",
-                                "/api/wishlist/**",
-                                "/v1/price-history/**"
+                                "/api/go/**",               // affiliate redirect
+                                "/api/recommendations/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/ai-chat/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/ai-chat/**").permitAll()
+
+                        // AI Chat dùng POST nên phải permit riêng
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/ai-chat/**"
+                        ).permitAll()
+
+                        // Nếu sau này có GET cho AI Chat thì cũng cho qua
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/ai-chat/**"
+                        ).permitAll()
+
+                        // Các API còn lại cần đăng nhập
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

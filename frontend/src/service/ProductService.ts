@@ -36,12 +36,12 @@ export async function searchProducts(
 }
 
 export async function priceComparison(productId: string): Promise<PriceComparison> {
-  const res = await apiClient.get(`/api/compare/${productId}`);
+  const res = await apiClient.get(`/compare/${productId}`);
   return res.data;
 }
 
 export async function priceHistory(productId: string): Promise<PriceHistory> {
-  const res = await apiClient.get(`/api/v1/price-history/${productId}`);
+  const res = await apiClient.get(`/v1/price-history/${productId}`);
   return res.data;
 }
 

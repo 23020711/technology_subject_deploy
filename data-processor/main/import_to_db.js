@@ -1,73 +1,60 @@
 const { Client } = require('pg');
 const fs   = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 const dns  = require('dns');
-
-// Load .env.db file
-const envPath = path.join(__dirname, '..\\..\\data-processor\\.env.db');
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, 'utf8');
-  envContent.split('\n').forEach(line => {
-    const [key, ...vals] = line.split('=');
-    if (key && vals.length) {
-      if (!process.env[key.trim()]) {
-        process.env[key.trim()] = vals.join('=').trim();
-      }
-    }
-  });
-}
 
 dns.setDefaultResultOrder('ipv4first');
 
-const OUTPUT_PATH = path.join(__dirname, '..\\..\\crawl-data\\pricehawk_output.json');
+const OUTPUT_PATH      = path.join(__dirname, '..\\..\\crawl-data\\pricehawk_output.json');
+const BACKEND_CFG_PATH = path.join(__dirname, '..\\..\\backend\\src\\main\\resources\\application.yaml');
 
-console.log('Script bat dau...');
-console.log('OUTPUT_PATH:', OUTPUT_PATH);
+console.log('📌 Script bắt đầu...');
+console.log('📂 OUTPUT_PATH     :', OUTPUT_PATH);
+console.log('📂 BACKEND_CFG_PATH:', BACKEND_CFG_PATH);
 console.log('');
 
 async function importToDb() {
   let client = null;
 
   try {
-    // Hardcoded for Supabase pooler
-    const dbHost = 'aws-1-ap-northeast-2.pooler.supabase.com';
-    const dbPort = 5432;
-    const dbUser = 'postgres.astkanfsacxriwprspqr';
-    const dbPassword = 'PriceHawl123@';
-    const dbName = 'postgres';
-    
-    console.log('Doc cau hinh...');
-    console.log(`Ket noi toi: ${dbHost}:${dbPort}`);
-    console.log('Doc config xong');
+    // 1. Đọc password từ backend config
+    console.log('📖 Đọc cấu hình backend...');
+    if (!fs.existsSync(BACKEND_CFG_PATH)) {
+      throw new Error(`Không tìm thấy file: ${BACKEND_CFG_PATH}`);
+    }
+    const config    = yaml.load(fs.readFileSync(BACKEND_CFG_PATH, 'utf8'));
+    const dbPassword = config.spring.datasource.password;
+    console.log('✅ Đọc config xong');
 
-    // Ket noi DB
+    // 2. Kết nối DB
     client = new Client({
-      host:     dbHost,
-      port:     dbPort,
-      database: dbName,
-      user:     dbUser,
+      host:     'aws-1-ap-northeast-2.pooler.supabase.com',
+      port:     5432,
+      database: 'postgres',
+      user:     'postgres.astkanfsacxriwprspqr',
       password: dbPassword,
       ssl:      { rejectUnauthorized: false },
     });
-    console.log('Dang ket noi Supabase...');
+    console.log('⏳ Kết nối Supabase...');
     await client.connect();
-    console.log('Ket noi thanh cong!\n');
+    console.log('✅ Kết nối thành công!\n');
 
-    // Doc file output
-    console.log('Doc file output...');
+    // 3. Đọc file output
+    console.log('📖 Đọc file output...');
     if (!fs.existsSync(OUTPUT_PATH)) {
-      throw new Error(`Khong tim thay file: ${OUTPUT_PATH}`);
+      throw new Error(`Không tìm thấy file: ${OUTPUT_PATH}`);
     }
     const json     = JSON.parse(fs.readFileSync(OUTPUT_PATH, 'utf8'));
     const products = json.products;
-    console.log(`Bat dau import ${products.length} san pham...\n`);
+    console.log(`🚀 Bắt đầu import ${products.length} sản phẩm...\n`);
 
     let successCount = 0;
     let errorCount   = 0;
 
     for (let i = 0; i < products.length; i++) {
       const entry       = products[i];
-      const productName = entry.product?.name || 'Khong ten';
+      const productName = entry.product?.name || 'Không tên';
 
       try {
         await client.query('BEGIN');
@@ -195,33 +182,33 @@ async function importToDb() {
         successCount++;
 
         if (i % 20 === 0 || i === products.length - 1) {
-          console.log(`[${i + 1}/${products.length}] OK: ${productName}`);
+          console.log(`⭐ [${i + 1}/${products.length}] ✔ ${productName}`);
         }
 
       } catch (itemErr) {
         await client.query('ROLLBACK');
         errorCount++;
-        console.error(`Loi [${i + 1}] "${productName}": ${itemErr.message}`);
+        console.error(`❌ [${i + 1}] Lỗi "${productName}": ${itemErr.message}`);
       }
     }
 
     console.log(`\n${'─'.repeat(40)}`);
-    console.log(`Thanh cong: ${successCount}`);
-    console.log(`That bai:   ${errorCount}`);
-    console.log(`Import hoan tat!`);
+    console.log(`✅ Thành công: ${successCount}`);
+    console.log(`❌ Thất bại:   ${errorCount}`);
+    console.log(`🎉 Import hoàn tất!`);
 
   } catch (err) {
-    console.error('LOI HE THONG:', err.message);
+    console.error('💥 LỖI HỆ THỐNG:', err.message);
   } finally {
     if (client) {
       await client.end();
-      console.log('Da dong ket noi.');
+      console.log('🔌 Đã đóng kết nối.');
     }
   }
 }
 
 importToDb().then(() => {
-  console.log('Script ket thuc.');
+  console.log('🏁 Script kết thúc.');
 }).catch((err) => {
-  console.error('Loi ngoai cung:', err);
+  console.error('💥 Lỗi ngoài cùng:', err);
 });

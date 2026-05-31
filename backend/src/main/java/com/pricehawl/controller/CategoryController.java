@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@CrossOrigin(origins = "*") // Cho phép Frontend gọi tránh lỗi CORS
 public class CategoryController {
 
     @Autowired

@@ -27,29 +27,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
 
-    @Value("${supabase.url:}")
+    @Value("${supabase.url}")
     private String supabaseUrl;
 
     private JwkProvider jwkProvider;
-    private boolean jwtEnabled = false;
 
     @PostConstruct
     public void init() {
-        if (supabaseUrl == null || supabaseUrl.isBlank()) {
-            log.warn("Supabase URL not configured, JWT verification disabled");
-            jwtEnabled = false;
-            return;
-        }
         try {
             jwkProvider = new JwkProviderBuilder(
                     new URL(supabaseUrl + "/auth/v1/.well-known/jwks.json"))
                     .cached(10, 24, TimeUnit.HOURS)
                     .rateLimited(10, 1, TimeUnit.MINUTES)
                     .build();
-            jwtEnabled = true;
         } catch (Exception e) {
-            log.warn("Failed to initialize JwkProvider, JWT verification disabled: {}", e.getMessage());
-            jwtEnabled = false;
+            throw new RuntimeException("Failed to initialize JwkProvider", e);
         }
     }
     @Override
@@ -60,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
-        if (header != null && header.startsWith("Bearer ") && jwtEnabled) {
+        if (header != null && header.startsWith("Bearer ")) {
             try {
                 String token = header.substring(7);
 

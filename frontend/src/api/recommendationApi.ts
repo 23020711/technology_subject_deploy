@@ -7,7 +7,7 @@ export const getRecommendations = async (
   size: number = 12
 ): Promise<RecommendationProduct[]> => {
   const response = await apiClient.get<RecommendationProduct[]>(
-    `/api/recommendations/${userId}`,
+    `/recommendations/${userId}`,
     { params: { page, size } }
   );
   return response.data;

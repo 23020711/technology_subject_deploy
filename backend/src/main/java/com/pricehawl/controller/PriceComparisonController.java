@@ -11,6 +11,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/compare")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class PriceComparisonController {
 
     private final PriceComparisonService priceComparisonService;

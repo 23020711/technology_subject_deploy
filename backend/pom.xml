@@ -122,12 +122,6 @@
             <version>2.4.0</version>
         </dependency>
 
-        <!-- Spring Boot Actuator for health checks -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
     </dependencies>
 
     <dependencyManagement>
@@ -169,9 +163,6 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                    <jvmArguments>
-                        -Xms256m -Xmx512m -XX:+UseG1GC
-                    </jvmArguments>
                 </configuration>
             </plugin>
         </plugins>

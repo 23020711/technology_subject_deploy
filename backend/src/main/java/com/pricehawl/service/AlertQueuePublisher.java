@@ -1,8 +1,8 @@
 package com.pricehawl.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AlertQueuePublisher {
 
     private static final String ALERT_QUEUE_KEY = "alert:queue";
@@ -18,25 +19,8 @@ public class AlertQueuePublisher {
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
-    private final boolean redisAvailable;
-
-    public AlertQueuePublisher(
-            @Autowired(required = false) StringRedisTemplate redisTemplate,
-            ObjectMapper objectMapper) {
-        this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
-        this.redisAvailable = redisTemplate != null;
-        if (!redisAvailable) {
-            log.warn("Redis not available, AlertQueuePublisher will drop all events");
-        }
-    }
 
     public void publish(UUID productId, int currentPrice) {
-        if (!redisAvailable) {
-            log.debug("Alert event skipped (Redis unavailable): productId={}, price={}",
-                productId, currentPrice);
-            return;
-        }
         try {
             // Kiểm tra queue có đầy không
             Long size = redisTemplate.opsForList().size(ALERT_QUEUE_KEY);

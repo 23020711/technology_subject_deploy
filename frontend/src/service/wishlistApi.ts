@@ -19,7 +19,7 @@ function logAxiosError(context: string, error: unknown) {
 export const wishlistService = {
   getWishlist: async (userId: string) => {
     try {
-      const response = await apiClient.get(`/api/wishlist/${userId}`);
+      const response = await apiClient.get(`/wishlist/${userId}`);
       return response.data;
     } catch (error) {
       logAxiosError('Error fetching wishlist', error);
@@ -29,7 +29,7 @@ export const wishlistService = {
 
   add: async (userId: string, productId: string) => {
     try {
-      const response = await apiClient.post('/api/wishlist/add', {
+      const response = await apiClient.post('/wishlist/add', {
         userId: String(userId),
         productId: String(productId),
       });
@@ -42,7 +42,7 @@ export const wishlistService = {
 
   remove: async (productId: string, userId: string) => {
     try {
-      const response = await apiClient.delete(`/api/wishlist/${productId}`, {
+      const response = await apiClient.delete(`/wishlist/${productId}`, {
         params: { userId: String(userId) },
       });
       return response.data;

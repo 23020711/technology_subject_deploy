@@ -7,7 +7,7 @@ import com.pricehawl.dto.TrendingDealModels.TrendingDealResponse;
 import com.pricehawl.dto.TrendingDealModels.TrendingDealsSnapshot;
 import com.pricehawl.repository.AiChatRepository;
 import com.pricehawl.service.AiChatService;
-import com.pricehawl.service.ProductSearchServiceInterface;
+import com.pricehawl.service.ProductSearchService;
 import com.pricehawl.service.TrendingDealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -23,10 +23,11 @@ import java.util.concurrent.Executors;
 @RestController
 @RequestMapping("/api/ai-chat")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class AiChatController {
 
     private final AiChatService aiChatService;
-    private final ProductSearchServiceInterface productSearchService;
+    private final ProductSearchService productSearchService;
     private final TrendingDealService trendingDealService;
     private final AiChatRepository aiChatRepository;
 
