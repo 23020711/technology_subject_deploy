@@ -88,7 +88,13 @@ public class SecurityConfig {
                                 "/notifications/**",
                                 "/api/notifications/**",
                                 "/api/alerts/**",
-                                "/alerts/**"
+                                "/alerts/**",
+                                "/users/me",
+                                "/api/users/me",
+                                "/payments/**",
+                                "/api/payments/**",
+                                "/search/**",
+                                "/api/search/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/wishlist/**",
