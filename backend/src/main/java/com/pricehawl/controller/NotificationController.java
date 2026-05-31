@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(path = {"/api/notifications", "/notifications"})
+@RequestMapping("/api/notifications")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
@@ -40,9 +40,6 @@ public class NotificationController {
     public ResponseEntity<Map<String, Long>> unreadCount(
         @AuthenticationPrincipal UserPrincipal principal
     ) {
-        if (principal == null) {
-            return ResponseEntity.ok(Map.of("count", 0L));
-        }
         UUID userId = UUID.fromString(principal.getUserId());
         long count = notificationRepository.countByUserIdAndIsReadFalse(userId);
         return ResponseEntity.ok(Map.of("count", count));

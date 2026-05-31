@@ -4,16 +4,13 @@ import com.pricehawl.dto.*;
 import com.pricehawl.entity.User;
 import com.pricehawl.security.UserPrincipal;
 import com.pricehawl.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(path = {"/users", "/api/users"})
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService service;
@@ -23,11 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication auth) {
-        if (auth == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Not authenticated"));
-        }
+    public User me(Authentication auth) {
         UUID userId = UUID.fromString(auth.getName());
 
         String email = "unknown@email.com";
@@ -36,28 +29,22 @@ public class UserController {
             email = ((UserPrincipal) principal).getEmail();
         }
 
-        return ResponseEntity.ok(service.getOrCreate(userId, email));
+        return service.getOrCreate(userId, email);
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<?> update(Authentication auth,
+    public User update(Authentication auth,
                        @RequestBody UpdateUserRequest req) {
-        if (auth == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Not authenticated"));
-        }
+
         UUID userId = UUID.fromString(auth.getName());
-        return ResponseEntity.ok(service.update(userId, req));
+        return service.update(userId, req);
     }
 
     @PatchMapping("/me/preferences")
-    public ResponseEntity<?> preferences(Authentication auth,
+    public User preferences(Authentication auth,
                             @RequestBody UpdatePreferencesRequest req) {
-        if (auth == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Not authenticated"));
-        }
+
         UUID userId = UUID.fromString(auth.getName());
-        return ResponseEntity.ok(service.updatePreferences(userId, req));
+        return service.updatePreferences(userId, req);
     }
 }

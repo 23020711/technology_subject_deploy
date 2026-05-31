@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProductServiceTest {
 
     @Autowired
-    private ProductSearchServiceInterface searchService;
+    private ProductSearchService searchService;
 
     // =========================
     // 🔹 TEST 1: SYNC

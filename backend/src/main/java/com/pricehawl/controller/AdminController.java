@@ -8,7 +8,6 @@ import com.pricehawl.entity.User;
 import com.pricehawl.repository.*;
 import com.pricehawl.service.AccessTradeService;
 import com.pricehawl.service.MultiPlatformPriceRefreshService;
-import com.pricehawl.service.ProductSearchServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +41,6 @@ public class AdminController {
     private final CrawlErrorRepository crawlErrorRepository;
     private final AccessTradeService accessTradeService;
     private final MultiPlatformPriceRefreshService refreshService;
-    private final ProductSearchServiceInterface productSearchService;
-    private final com.pricehawl.repository.ProductSearchRepository productSearchRepository;
     private final com.pricehawl.repository.PaymentRepository paymentRepository;
 
     private final ExecutorService adminCrawlerPool = Executors.newSingleThreadExecutor();
@@ -323,33 +320,6 @@ public ResponseEntity<Map<String, Object>> deleteListing(@PathVariable UUID list
             "shown", outOfStock.size(),
             "message", outOfStock.size() + " sản phẩm đã được hiện lại"
         ));
-    }
-
-    /// ── Elasticsearch Index Management ─────────────────────────────────────────
-
-    @PostMapping("/reindex-products")
-    public ResponseEntity<Map<String, Object>> reindexProducts() {
-        log.info("Starting Elasticsearch reindex — loading all products from PostgreSQL");
-        long start = System.currentTimeMillis();
-
-        try {
-            productSearchService.syncAll();
-            long elapsed = System.currentTimeMillis() - start;
-            long esDocCount = productSearchRepository.count();
-            log.info("Indexed {} products into Elasticsearch in {} ms", esDocCount, elapsed);
-            return ResponseEntity.ok(Map.of(
-                "status", "OK",
-                "indexed", esDocCount,
-                "elapsedMs", elapsed,
-                "message", "All products indexed into Elasticsearch"
-            ));
-        } catch (Exception e) {
-            log.error("Reindex failed: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(Map.of(
-                "status", "ERROR",
-                "message", "Reindex failed: " + e.getMessage()
-            ));
-        }
     }
 
     /// ── Crawler Management ────────────────────────────────────────────────────

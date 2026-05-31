@@ -8,16 +8,7 @@ if (!supabaseUrl || !supabaseKey) {
 }
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-function resolveBackendUrl(): string {
-    const raw = import.meta.env.VITE_API_BASE_URL as string | undefined;
-    const trimmed = raw != null ? String(raw).trim().replace(/\/$/, '') : '';
-    if (trimmed.length > 0) {
-        return trimmed;
-    }
-    return 'http://localhost:8080';
-}
-
-export const BACKEND_URL = resolveBackendUrl();
+export const BACKEND_URL = 'http://localhost:8080'
 
 export interface UserProfile {
     id: string

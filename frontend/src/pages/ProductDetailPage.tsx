@@ -25,11 +25,11 @@ export default function ProductDetailPage() {
 
     const [comparison, setComparison] = useState<PriceComparison | null>(null);
     const [history, setHistory] = useState<PriceHistory | null>(null);
-
+    
     // TÁCH LOADING:
-    const [compLoading, setCompLoading] = useState(true);
+    const [compLoading, setCompLoading] = useState(true); 
     const [histLoading, setHistLoading] = useState(true);
-
+    
     const [alertOpen, setAlertOpen] = useState(false);
 
     useEffect(() => {
@@ -143,7 +143,6 @@ export default function ProductDetailPage() {
                         <ProductGallery images={comparison.imageUrls} title={comparison.productName} showLowestBadge={false} />
                     </div>
                     <div>
-                        {/* Truyền onAlertClick xuống ProductSummary */}
                         <ProductSummary
                             comparison={comparison}
                             onAlertClick={() => setAlertOpen(true)}
