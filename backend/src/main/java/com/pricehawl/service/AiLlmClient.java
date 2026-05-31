@@ -3,11 +3,10 @@ package com.pricehawl.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -15,29 +14,25 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AiLlmClient {
 
-    // Thêm : đằng sau để nếu không tìm thấy key trong yml/env, Spring sẽ gán chuỗi rỗng thay vì báo lỗi sập app
+    private final RestTemplate restTemplate = new RestTemplate();
+
     @Value("${ai.base-url:}")
     private String baseUrl;
 
     @Value("${ai.api-key:}")
     private String apiKey;
 
-    // Thiết lập model mặc định nếu không có cấu hình
     @Value("${ai.model:gpt-3.5-turbo}")
     private String model;
 
     public String generateAnswer(String systemPrompt, String userPrompt) {
-        // Đoạn check này của bạn bây giờ sẽ hoạt động an toàn khi thiếu API Key ở môi trường dev
         if (apiKey == null || apiKey.isBlank() || baseUrl.isBlank()) {
             System.err.println("AI features are disabled: Missing API Key or Base URL.");
             return null;
         }
 
         try {
-            WebClient client = WebClient.builder()
-                    .baseUrl(baseUrl)
-                    .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                    .build();
+            String url = baseUrl + "/v1beta/models/" + model + ":generateContent?key=" + apiKey;
 
             Map<String, Object> body = Map.of(
                     "contents", List.of(
@@ -57,22 +52,23 @@ public class AiLlmClient {
                     )
             );
 
-            JsonNode response = client.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/v1beta/models/" + model + ":generateContent")
-                            .queryParam("key", apiKey)
-                            .build())
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(JsonNode.class)
-                    .timeout(Duration.ofSeconds(20))
-                    .block();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            if (response == null) {
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<JsonNode> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    JsonNode.class
+            );
+
+            if (response.getBody() == null) {
                 return null;
             }
 
-            JsonNode contentNode = response.at("/candidates/0/content/parts/0/text");
+            JsonNode contentNode = response.getBody().at("/candidates/0/content/parts/0/text");
             if (contentNode.isMissingNode()) {
                 return null;
             }
