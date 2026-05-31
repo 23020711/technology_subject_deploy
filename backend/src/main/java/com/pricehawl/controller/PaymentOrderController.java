@@ -21,6 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000", "https://technology-subject-deploy.vercel.app"}, allowedHeaders = "*")
 public class PaymentOrderController {
 
     private static final Set<String> ADMIN_EMAILS = Set.of(

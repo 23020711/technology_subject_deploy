@@ -174,6 +174,40 @@ public class ProductSearchServiceNoOp implements ProductSearchServiceInterface {
 
 ---
 
+## 6. @CrossOrigin Annotations - Fix CORS cho Production
+
+**Files:** Tất cả các Controller
+
+### Vấn đề gốc:
+- Các controller có `@CrossOrigin(origins = "http://localhost:5173")` chỉ cho phép localhost
+- Khi deploy lên Vercel, frontend bị chặn bởi CORS policy
+
+### Fix đã làm:
+- Thêm origin `https://technology-subject-deploy.vercel.app` vào tất cả @CrossOrigin
+
+### Các file đã sửa:
+- `TrendingDealController.java`
+- `RecommendationController.java`
+- `WishlistController.java`
+- `ProductController.java`
+- `AdminController.java`
+- `AiChatController.java`
+- `NotificationController.java`
+- `PriceAlertController.java`
+- `AccessTradeController.java`
+- `PaymentOrderController.java`
+
+### Code quan trọng (GIỮ NGUYÊN):
+```java
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://technology-subject-deploy.vercel.app"
+})
+```
+
+---
+
 ## 🔗 URLs Production
 
 - **Backend:** https://technologysubjectdeploy-production-156e.up.railway.app

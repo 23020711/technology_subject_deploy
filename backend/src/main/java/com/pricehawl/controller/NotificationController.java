@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000", "https://technology-subject-deploy.vercel.app"})
 public class NotificationController {
 
     private final NotificationRepository notificationRepository;

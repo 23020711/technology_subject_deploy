@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/trending-deals")
 @RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000", "https://technology-subject-deploy.vercel.app"}, allowedHeaders = "*")
 public class TrendingDealController {
 
     private final TrendingDealService trendingDealService;
