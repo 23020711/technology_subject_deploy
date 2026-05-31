@@ -4,6 +4,7 @@ import com.pricehawl.dto.AiRecommendationDTO;
 import com.pricehawl.dto.ProductSearchDTO;
 import com.pricehawl.repository.AiChatRepository;
 import com.pricehawl.service.ProductSearchServiceInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
