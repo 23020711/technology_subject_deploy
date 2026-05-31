@@ -40,6 +40,9 @@ public class NotificationController {
     public ResponseEntity<Map<String, Long>> unreadCount(
         @AuthenticationPrincipal UserPrincipal principal
     ) {
+        if (principal == null) {
+            return ResponseEntity.ok(Map.of("count", 0L));
+        }
         UUID userId = UUID.fromString(principal.getUserId());
         long count = notificationRepository.countByUserIdAndIsReadFalse(userId);
         return ResponseEntity.ok(Map.of("count", count));
