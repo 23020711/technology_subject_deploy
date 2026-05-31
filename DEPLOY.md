@@ -35,31 +35,28 @@ Create a PostgreSQL database on Supabase. You'll need:
 
 ```env
 # Database (Supabase PostgreSQL)
-SPRING_DATASOURCE_URL=jdbc:postgresql://your-db-host:5432/postgres
-SPRING_DATASOURCE_USERNAME=postgres
-SPRING_DATASOURCE_PASSWORD=your-password
+SPRING_DATASOURCE_URL=jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?sslmode=require
+SPRING_DATASOURCE_USERNAME=postgres.astkanfsacxriwprspqr
+SPRING_DATASOURCE_PASSWORD=your-supabase-password
 
-# Optional: Redis (for caching)
-REDIS_HOST=your-redis-host
+# Redis (Railway Redis)
+REDIS_HOST=your-redis-host.railway.app
 REDIS_PORT=6379
 REDIS_PASSWORD=your-redis-password
-REDIS_ENABLED=false
 
-# Optional: Elasticsearch
-ELASTICSEARCH_URIS=http://localhost:9200
-ELASTICSEARCH_ENABLED=false
+# Elasticsearch (Elastic Cloud)
+ELASTICSEARCH_URIS=https://your-elastic-endpoint.asia-southeast1.gcp.elastic-cloud.com:443
+ELASTICSEARCH_USERNAME=elastic
+ELASTICSEARCH_PASSWORD=your-elastic-password
 
 # Supabase Auth
-SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_URL=https://astkanfsacxriwprspqr.supabase.co
 SUPABASE_API_KEY=your-supabase-anon-key
 
-# AI Service (optional)
+# AI Service (Gemini)
 AI_BASE_URL=https://generativelanguage.googleapis.com
 AI_API_KEY=your-gemini-api-key
 AI_MODEL=gemini-2.5-flash
-
-# Scheduler (disable for production unless needed)
-SCHEDULER_ENABLED=false
 
 # Email (Resend)
 RESEND_API_KEY=your-resend-api-key
