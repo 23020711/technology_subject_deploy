@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/price-history")
+@RequestMapping(path = {"/api/v1/price-history", "/v1/price-history", "/api/price-history", "/price-history"})
 @RequiredArgsConstructor
 public class PriceHistoryController {
     

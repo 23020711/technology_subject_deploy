@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/recommendations")
+@RequestMapping(path = {"/api/recommendations", "/recommendations"})
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class RecommendationController {

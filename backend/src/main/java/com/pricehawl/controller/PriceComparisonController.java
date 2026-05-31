@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/compare")
+@RequestMapping(path = {"/api/compare", "/compare"})
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class PriceComparisonController {
