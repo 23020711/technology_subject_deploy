@@ -4,23 +4,17 @@ import type { AxiosResponse } from 'axios'
 
 /**
  * Base URL API:
- * - Nếu VITE_API_BASE_URL=http://localhost:8080      → dùng http://localhost:8080
- * - Nếu VITE_API_BASE_URL=http://localhost:8080/api  → tự bỏ /api để tránh /api/api
- * - Nếu không set env → dùng http://localhost:8080
+ * - Production: use VITE_BACKEND_URL if set
+ * - Dev: use http://localhost:8080 (via Vite proxy)
  */
 export function getApiBaseUrl(): string {
-  const v = import.meta.env.VITE_API_BASE_URL as string | undefined
-  const normalized = v != null ? String(v).trim().replace(/\/$/, '') : ''
-
-  if (!normalized) {
-    return 'http://localhost:8080'
+  // Production: use VITE_BACKEND_URL if set
+  const backendUrl = import.meta.env.VITE_BACKEND_URL as string | undefined;
+  if (backendUrl?.trim()) {
+    return backendUrl.trim().replace(/\/$/, '');
   }
-
-  if (normalized.endsWith('/api')) {
-    return normalized.slice(0, -4)
-  }
-
-  return normalized
+  // Dev fallback
+  return 'http://localhost:8080';
 }
 
 /**

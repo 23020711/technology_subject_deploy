@@ -15,9 +15,13 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 
 function resolveBaseUrl(): string {
-    const raw = import.meta.env.VITE_API_BASE_URL as string | undefined;
-    const trimmed = raw != null ? String(raw).trim().replace(/\/$/, '') : '';
-    return trimmed.length > 0 ? trimmed : '/api';
+    // Production: use VITE_BACKEND_URL if set
+    const backendUrl = import.meta.env.VITE_BACKEND_URL as string | undefined;
+    if (backendUrl?.trim()) {
+        return backendUrl.trim().replace(/\/$/, '');
+    }
+    // Dev: use proxy
+    return '/api';
 }
 
 export const API_BASE_URL = resolveBaseUrl();

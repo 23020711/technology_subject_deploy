@@ -8,7 +8,9 @@ if (!supabaseUrl || !supabaseKey) {
 }
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const BACKEND_URL = 'http://localhost:8080'
+// Backend URL: use environment variable in production, localhost for dev
+const backendUrl = import.meta.env.VITE_BACKEND_URL as string | undefined;
+export const BACKEND_URL = backendUrl?.trim() || 'http://localhost:8080';
 
 export interface UserProfile {
     id: string

@@ -49,7 +49,7 @@ server:
 
 # CORS Configuration for Railway + Vercel deployment
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://technology-subject-deploy.vercel.app,https://technologysubjectdeploy-production-ad20.up.railway.app}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://technology-subject-deploy.vercel.app,https://technologysubjectdeploy-production-156e.up.railway.app}
 
 logging:
   level:
