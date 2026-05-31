@@ -31,21 +31,21 @@ export async function searchProducts(
     params.set('promo', promo);
   }
 
-  const res = await apiClient.get(`/products/search?${params.toString()}`);
+  const res = await apiClient.get(`/api/products/search?${params.toString()}`);
   return res.data;
 }
 
 export async function priceComparison(productId: string): Promise<PriceComparison> {
-  const res = await apiClient.get(`/compare/${productId}`);
+  const res = await apiClient.get(`/api/compare/${productId}`);
   return res.data;
 }
 
 export async function priceHistory(productId: string): Promise<PriceHistory> {
-  const res = await apiClient.get(`/v1/price-history/${productId}`);
+  const res = await apiClient.get(`/api/v1/price-history/${productId}`);
   return res.data;
 }
 
 export async function getProductsByCategory(slug: string): Promise<ProductSearch[]> {
-  const res = await apiClient.get(`/products/category/${encodeURIComponent(slug)}`);
+  const res = await apiClient.get(`/api/products/category/${encodeURIComponent(slug)}`);
   return res.data;
 }

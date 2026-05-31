@@ -21,7 +21,7 @@ export default function AdminPage() {
 
     const fetchPendingCount = useCallback(async () => {
         try {
-            const res = await apiClient.get('/payments/admin/pending-count');
+            const res = await apiClient.get('/api/payments/admin/pending-count');
             setPendingCount(res.data.count ?? 0);
         } catch { /* silent */ }
     }, []);

@@ -38,7 +38,7 @@ export default function PaymentsTab() {
 
     const fetchOrders = useCallback(async () => {
         try {
-            const res = await apiClient.get('/payments/admin/pending');
+            const res = await apiClient.get('/api/payments/admin/pending');
             setOrders(res.data);
         } catch (e) {
             console.error(e);
@@ -56,7 +56,7 @@ export default function PaymentsTab() {
     const handleAction = async (id: string, action: 'confirm' | 'reject') => {
         setActionId(id);
         try {
-            await apiClient.post(`/payments/admin/${id}/${action}`);
+            await apiClient.post(`/api/payments/admin/${id}/${action}`);
             setOrders(prev => prev.filter(o => o.id !== id));
         } catch (e) {
             console.error(e);

@@ -24,26 +24,26 @@ export interface CreateAlertRequest {
 
 export const alertService = {
   getAlerts: async (): Promise<AlertResponse[]> => {
-    const res = await apiClient.get('/alerts');
+    const res = await apiClient.get('/api/alerts');
     return res.data;
   },
 
   createAlert: async (req: CreateAlertRequest): Promise<AlertResponse> => {
-    const res = await apiClient.post('/alerts', req);
+    const res = await apiClient.post('/api/alerts', req);
     return res.data;
   },
 
   toggleAlert: async (id: string): Promise<AlertResponse> => {
-    const res = await apiClient.patch(`/alerts/${id}/toggle`);
+    const res = await apiClient.patch(`/api/alerts/${id}/toggle`);
     return res.data;
   },
 
   updatePrice: async (id: string, targetPrice: number): Promise<AlertResponse> => {
-    const res = await apiClient.patch(`/alerts/${id}/price`, { targetPrice });
+    const res = await apiClient.patch(`/api/alerts/${id}/price`, { targetPrice });
     return res.data;
   },
 
   deleteAlert: async (id: string): Promise<void> => {
-    await apiClient.delete(`/alerts/${id}`);
+    await apiClient.delete(`/api/alerts/${id}`);
   },
 };
