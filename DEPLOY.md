@@ -45,9 +45,10 @@ REDIS_PORT=6379
 REDIS_PASSWORD=your-redis-password
 
 # Elasticsearch (Elastic Cloud)
-ELASTICSEARCH_URIS=https://your-elastic-endpoint.asia-southeast1.gcp.elastic-cloud.com:443
+ELASTICSEARCH_URI=https://9fd5ddb89d8f4941b93d478fcfb98350.asia-southeast1.gcp.elastic-cloud.com:443
 ELASTICSEARCH_USERNAME=elastic
-ELASTICSEARCH_PASSWORD=your-elastic-password
+ELASTICSEARCH_PASSWORD=wDQ7RMbkTjH9YcQ8rEsZxYqv
+ELASTICSEARCH_ENABLED=true
 
 # Supabase Auth
 SUPABASE_URL=https://astkanfsacxriwprspqr.supabase.co
