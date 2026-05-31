@@ -18,6 +18,7 @@ public class WebCorsConfig {
         // IMPORTANT: Wildcard patterns don't work with allowCredentials(true)
         config.setAllowedOriginPatterns(List.of(
                 "https://technology-subject-deploy.vercel.app",
+                "https://*.vercel.app",
                 "https://technologysubjectdeploy-production-156e.up.railway.app",
                 "http://localhost:5173",
                 "http://localhost:5174",

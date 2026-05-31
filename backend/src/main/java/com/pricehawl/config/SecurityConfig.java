@@ -21,8 +21,10 @@ public class SecurityConfig {
 
         // IMPORTANT: Wildcard patterns like `https://*.vercel.app` DON'T work
         // with `allowCredentials(true)` in CORS - must list explicit origins
+        // BUT setAllowedOriginPatterns() with wildcard DOES work in Spring Security 6.x
         List<String> allowedOrigins = List.of(
                 "https://technology-subject-deploy.vercel.app",
+                "https://*.vercel.app",
                 "https://technologysubjectdeploy-production-156e.up.railway.app",
                 "http://localhost:5173",
                 "http://localhost:5174",
