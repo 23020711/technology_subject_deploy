@@ -114,10 +114,13 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator-core</artifactId>
+            <exclusions>
+                <!-- Exclude conflicting webjars that cause ClassNotFoundException -->
+                <exclusion>
+                    <groupId>org.webjars</groupId>
+                    <artifactId>webjars-locator-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
